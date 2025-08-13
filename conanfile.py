@@ -5,14 +5,14 @@ from conan.tools.scm import Git
 import os
 
 
-class OpenCVImageReaderConan(ConanFile):
-    name = "opencv-image-reader"
+class OpenCVImageProcessingConan(ConanFile):
+    name = "opencv-image-processing"
     version = "1.0.0"
-    
+
     # Package metadata
-    description = "OpenCV Image Reader Project with Conan dependency management"
-    topics = ("opencv", "image-processing", "cpp")
-    url = "https://github.com/your-org/opencv-image-reader"
+    description = "OpenCV Image Processing Project with modern Conan dependency management"
+    topics = ("opencv", "image-processing", "computer-vision", "cpp")
+    url = "https://github.com/your-org/opencv-image-processing"
     license = "MIT"
     
     # Binary configuration
@@ -67,19 +67,45 @@ class OpenCVImageReaderConan(ConanFile):
         tc.variables["CMAKE_CXX_STANDARD"] = "17"
         tc.variables["CMAKE_CXX_STANDARD_REQUIRED"] = "ON"
         
-        # OpenCV build configuration
+        # OpenCV build configuration - 极简配置，只构建必要模块
+        # 禁用示例、测试和文档
         tc.variables["BUILD_EXAMPLES"] = "OFF"
         tc.variables["BUILD_TESTS"] = "OFF"
         tc.variables["BUILD_PERF_TESTS"] = "OFF"
         tc.variables["BUILD_DOCS"] = "OFF"
         tc.variables["BUILD_opencv_apps"] = "OFF"
+
+        # 禁用语言绑定
         tc.variables["BUILD_opencv_python2"] = "OFF"
         tc.variables["BUILD_opencv_python3"] = "OFF"
         tc.variables["BUILD_opencv_java"] = "OFF"
+
+        # 禁用硬件加速和第三方库支持
         tc.variables["WITH_CUDA"] = "OFF"
         tc.variables["WITH_OPENCL"] = "OFF"
         tc.variables["WITH_IPP"] = "OFF"
         tc.variables["WITH_TBB"] = "OFF"
+        tc.variables["WITH_EIGEN"] = "OFF"
+        tc.variables["WITH_LAPACK"] = "OFF"
+
+        # 禁用视频和媒体相关功能
+        tc.variables["WITH_FFMPEG"] = "OFF"
+        tc.variables["WITH_GSTREAMER"] = "OFF"
+        tc.variables["WITH_V4L"] = "OFF"
+        tc.variables["WITH_DSHOW"] = "OFF"
+
+        # 只构建最核心的模块
+        tc.variables["BUILD_opencv_calib3d"] = "OFF"
+        tc.variables["BUILD_opencv_dnn"] = "OFF"
+        tc.variables["BUILD_opencv_features2d"] = "OFF"
+        tc.variables["BUILD_opencv_flann"] = "OFF"
+        tc.variables["BUILD_opencv_gapi"] = "OFF"
+        tc.variables["BUILD_opencv_ml"] = "OFF"
+        tc.variables["BUILD_opencv_objdetect"] = "OFF"
+        tc.variables["BUILD_opencv_photo"] = "OFF"
+        tc.variables["BUILD_opencv_stitching"] = "OFF"
+        tc.variables["BUILD_opencv_video"] = "OFF"
+        tc.variables["BUILD_opencv_videoio"] = "OFF"
         
         # Enable contrib modules if requested
         if self.options.with_opencv_contrib:

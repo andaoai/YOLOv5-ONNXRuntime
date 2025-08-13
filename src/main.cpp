@@ -17,6 +17,6 @@ int main() {
     std::cout << "Height: " << image.rows << std::endl;
     std::cout << "Width: " << image.cols << std::endl;
     std::cout << "Channels: " << image.channels() << std::endl;
-
+    std::cout << "andaoai-x" << image.cols << std::endl;
     return 0;
 }
