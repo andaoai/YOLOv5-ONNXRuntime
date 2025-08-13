@@ -31,10 +31,14 @@ if (!(Test-Path "C:\mingw64\bin\gcc.exe")) {
     exit 1
 }
 
-# Check required files
-if (!(Test-Path "third_party\opencv-4.12.0\CMakeLists.txt")) {
-    Write-Error "OpenCV source not found in third_party\opencv-4.12.0"
-    exit 1
+# Check and initialize git submodules
+if (!(Test-Path "third_party\opencv\CMakeLists.txt")) {
+    Write-Host "Initializing Git submodules..." -ForegroundColor Yellow
+    git submodule update --init --recursive
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error "Failed to initialize git submodules"
+        exit 1
+    }
 }
 
 if (!(Test-Path "assets\images\bus.jpg")) {
@@ -77,9 +81,9 @@ try {
     }
 
     Write-Host ""
-    Write-Host "Step 3: Building project..." -ForegroundColor Cyan
-    cmake --build . --config $BuildType
-    
+    Write-Host "Step 3: Building project with 24 parallel jobs..." -ForegroundColor Cyan
+    cmake --build . --config $BuildType -j 24
+
     if ($LASTEXITCODE -ne 0) {
         throw "Build failed"
     }

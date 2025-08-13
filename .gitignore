@@ -85,7 +85,12 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# Note: third_party/ is tracked in git but large dependencies
-# like OpenCV source can be excluded if needed
+# Note: third_party/ is tracked in git for submodules
+# Individual large dependencies can be excluded if needed
+# third_party/large_dependency/
 
-third_party
+# Allow third_party directory for git submodules
+third_party/
+# But ignore build artifacts in third_party
+third_party/*/build/
+third_party/*/install/

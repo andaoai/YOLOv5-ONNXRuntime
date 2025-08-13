@@ -28,8 +28,13 @@ set(WITH_OPENCL OFF CACHE BOOL "Include OpenCL support")
 set(WITH_IPP OFF CACHE BOOL "Include Intel IPP support")
 set(WITH_TBB OFF CACHE BOOL "Include Intel TBB support")
 
+# 检查 Git 子模块是否已初始化
+if(NOT EXISTS "${PROJECT_THIRD_PARTY_DIR}/opencv/CMakeLists.txt")
+    message(FATAL_ERROR "OpenCV submodule not found. Please run: git submodule update --init --recursive")
+endif()
+
 # 添加 OpenCV 源码作为子项目
-add_subdirectory(${PROJECT_THIRD_PARTY_DIR}/opencv-4.12.0)
+add_subdirectory(${PROJECT_THIRD_PARTY_DIR}/opencv)
 
 # 创建可执行文件
 add_executable(main ${PROJECT_SOURCE_DIR}/main.cpp)
@@ -48,11 +53,11 @@ target_link_libraries(main
 # 包含头文件目录
 target_include_directories(main PRIVATE
     ${PROJECT_INCLUDE_DIR}
-    ${PROJECT_THIRD_PARTY_DIR}/opencv-4.12.0/include
-    ${PROJECT_THIRD_PARTY_DIR}/opencv-4.12.0/modules/core/include
-    ${PROJECT_THIRD_PARTY_DIR}/opencv-4.12.0/modules/imgproc/include
-    ${PROJECT_THIRD_PARTY_DIR}/opencv-4.12.0/modules/imgcodecs/include
-    ${PROJECT_THIRD_PARTY_DIR}/opencv-4.12.0/modules/highgui/include
+    ${PROJECT_THIRD_PARTY_DIR}/opencv/include
+    ${PROJECT_THIRD_PARTY_DIR}/opencv/modules/core/include
+    ${PROJECT_THIRD_PARTY_DIR}/opencv/modules/imgproc/include
+    ${PROJECT_THIRD_PARTY_DIR}/opencv/modules/imgcodecs/include
+    ${PROJECT_THIRD_PARTY_DIR}/opencv/modules/highgui/include
     ${CMAKE_BINARY_DIR}  # 包含生成的头文件，如 opencv_modules.hpp
 )
 
@@ -68,4 +73,4 @@ message(STATUS "Source directory: ${PROJECT_SOURCE_DIR}")
 message(STATUS "Include directory: ${PROJECT_INCLUDE_DIR}")
 message(STATUS "Third party directory: ${PROJECT_THIRD_PARTY_DIR}")
 message(STATUS "Assets directory: ${PROJECT_ASSETS_DIR}")
-message(STATUS "OpenCV source directory: ${PROJECT_THIRD_PARTY_DIR}/opencv-4.12.0")
+message(STATUS "OpenCV source directory: ${PROJECT_THIRD_PARTY_DIR}/opencv")
