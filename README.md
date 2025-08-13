@@ -164,9 +164,76 @@ git add third_party/opencv
 git commit -m "Update OpenCV to 4.12.0"
 ```
 
+## 🔧 VSCode 开发环境配置
+
+### 解决 VSCode 头文件错误
+
+如果在 VSCode 中看到 `#include <opencv2/core.hpp>` 等头文件报错，请按以下步骤解决：
+
+#### 1. **完成项目构建**
+首先确保项目已经完成 CMake 配置：
+```bash
+cd build
+cmake .. -G "MinGW Makefiles" -DCMAKE_TOOLCHAIN_FILE=Release/generators/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+```
+
+#### 2. **配置 VSCode C++ 扩展**
+创建 `.vscode/c_cpp_properties.json` 文件：
+```json
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/include",
+                "${workspaceFolder}/third_party/opencv/include",
+                "${workspaceFolder}/third_party/opencv/modules/core/include",
+                "${workspaceFolder}/third_party/opencv/modules/imgproc/include",
+                "${workspaceFolder}/third_party/opencv/modules/imgcodecs/include",
+                "${workspaceFolder}/third_party/opencv/modules/highgui/include",
+                "${workspaceFolder}/build",
+                "C:/mingw64/include/**"
+            ],
+            "compilerPath": "C:/mingw64/bin/g++.exe",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "windows-gcc-x64",
+            "configurationProvider": "ms-vscode.cmake-tools",
+            "compileCommands": "${workspaceFolder}/build/compile_commands.json"
+        }
+    ],
+    "version": 4
+}
+```
+
+#### 3. **重新加载 VSCode**
+- 按 `Ctrl+Shift+P` 打开命令面板
+- 输入 `C/C++: Reload IntelliSense Database`
+- 或者重启 VSCode
+
+#### 4. **验证配置**
+- 打开 `src/main.cpp`
+- 检查 `#include <opencv2/core.hpp>` 是否还有红色波浪线
+- 如果仍有问题，检查 `build/compile_commands.json` 文件是否存在
+
+### 常见问题解决
+
+#### 问题：`cannot open source file "opencv2/opencv_modules.hpp"`
+**解决方案**：
+1. 确保已完成 CMake 配置（会生成 `opencv_modules.hpp`）
+2. 检查 `build/opencv2/opencv_modules.hpp` 文件是否存在
+3. 重新加载 VSCode IntelliSense
+
+#### 问题：`#include errors detected based on information provided by the configurationProvider setting`
+**解决方案**：
+1. 确保安装了 `ms-vscode.cmake-tools` 扩展
+2. 检查 `build/compile_commands.json` 文件是否存在
+3. 在 VSCode 设置中配置正确的 `configurationProvider`
+
 ## 🚀 最佳实践
 
 1. **使用构建脚本**: 自动化处理所有依赖和配置
 2. **定期清理缓存**: 避免磁盘空间占用过多
 3. **版本锁定**: 通过 Git 子模块确保团队版本一致
 4. **增量构建**: 利用 Conan 缓存减少重复编译
+5. **IDE 配置**: 正确配置 VSCode 以获得最佳开发体验
