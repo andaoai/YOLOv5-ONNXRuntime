@@ -33,6 +33,48 @@ if(NOT EXISTS "${PROJECT_THIRD_PARTY_DIR}/opencv/CMakeLists.txt")
     message(FATAL_ERROR "OpenCV submodule not found. Please run: git submodule update --init --recursive")
 endif()
 
+# 设置 OpenCV 构建选项 - 极简配置，只构建必要模块
+message(STATUS "Configuring OpenCV with minimal build options for faster compilation...")
+
+# 禁用示例、测试和文档
+set(BUILD_EXAMPLES OFF CACHE BOOL "Build examples")
+set(BUILD_TESTS OFF CACHE BOOL "Build tests")
+set(BUILD_PERF_TESTS OFF CACHE BOOL "Build performance tests")
+set(BUILD_DOCS OFF CACHE BOOL "Build documentation")
+set(BUILD_opencv_apps OFF CACHE BOOL "Build OpenCV apps")
+
+# 禁用语言绑定
+set(BUILD_opencv_python2 OFF CACHE BOOL "Build Python2 bindings")
+set(BUILD_opencv_python3 OFF CACHE BOOL "Build Python3 bindings")
+set(BUILD_opencv_java OFF CACHE BOOL "Build Java bindings")
+
+# 禁用硬件加速和第三方库支持
+set(WITH_CUDA OFF CACHE BOOL "Include CUDA support")
+set(WITH_OPENCL OFF CACHE BOOL "Include OpenCL support")
+set(WITH_IPP OFF CACHE BOOL "Include Intel IPP support")
+set(WITH_TBB OFF CACHE BOOL "Include Intel TBB support")
+set(WITH_EIGEN OFF CACHE BOOL "Include Eigen support")
+set(WITH_LAPACK OFF CACHE BOOL "Include LAPACK support")
+
+# 禁用视频和媒体相关功能
+set(WITH_FFMPEG OFF CACHE BOOL "Include FFMPEG support")
+set(WITH_GSTREAMER OFF CACHE BOOL "Include GStreamer support")
+set(WITH_V4L OFF CACHE BOOL "Include Video4Linux support")
+set(WITH_DSHOW OFF CACHE BOOL "Include DirectShow support")
+
+# 只构建最核心的模块
+set(BUILD_opencv_calib3d OFF CACHE BOOL "Build calib3d module")
+set(BUILD_opencv_dnn OFF CACHE BOOL "Build DNN module")
+set(BUILD_opencv_features2d OFF CACHE BOOL "Build features2d module")
+set(BUILD_opencv_flann OFF CACHE BOOL "Build flann module")
+set(BUILD_opencv_gapi OFF CACHE BOOL "Build G-API module")
+set(BUILD_opencv_ml OFF CACHE BOOL "Build ML module")
+set(BUILD_opencv_objdetect OFF CACHE BOOL "Build objdetect module")
+set(BUILD_opencv_photo OFF CACHE BOOL "Build photo module")
+set(BUILD_opencv_stitching OFF CACHE BOOL "Build stitching module")
+set(BUILD_opencv_video OFF CACHE BOOL "Build video module")
+set(BUILD_opencv_videoio OFF CACHE BOOL "Build videoio module")
+
 # 添加 OpenCV 源码作为子项目
 add_subdirectory(${PROJECT_THIRD_PARTY_DIR}/opencv)
 
