@@ -14,20 +14,6 @@ set(PROJECT_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set(PROJECT_THIRD_PARTY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party)
 set(PROJECT_ASSETS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/assets)
 
-# 设置 OpenCV 构建选项
-set(BUILD_EXAMPLES OFF CACHE BOOL "Build examples")
-set(BUILD_TESTS OFF CACHE BOOL "Build tests")
-set(BUILD_PERF_TESTS OFF CACHE BOOL "Build performance tests")
-set(BUILD_DOCS OFF CACHE BOOL "Build documentation")
-set(BUILD_opencv_apps OFF CACHE BOOL "Build OpenCV apps")
-set(BUILD_opencv_python2 OFF CACHE BOOL "Build Python2 bindings")
-set(BUILD_opencv_python3 OFF CACHE BOOL "Build Python3 bindings")
-set(BUILD_opencv_java OFF CACHE BOOL "Build Java bindings")
-set(WITH_CUDA OFF CACHE BOOL "Include CUDA support")
-set(WITH_OPENCL OFF CACHE BOOL "Include OpenCL support")
-set(WITH_IPP OFF CACHE BOOL "Include Intel IPP support")
-set(WITH_TBB OFF CACHE BOOL "Include Intel TBB support")
-
 # 检查 Git 子模块是否已初始化
 if(NOT EXISTS "${PROJECT_THIRD_PARTY_DIR}/opencv/CMakeLists.txt")
     message(FATAL_ERROR "OpenCV submodule not found. Please run: git submodule update --init --recursive")
