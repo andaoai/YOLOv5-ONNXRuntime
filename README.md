@@ -178,7 +178,7 @@ cmake .. -G "MinGW Makefiles" -DCMAKE_TOOLCHAIN_FILE=Release/generators/conan_to
 ```
 
 #### 2. **配置 VSCode C++ 扩展**
-创建 `.vscode/c_cpp_properties.json` 文件：
+如果您使用 CMake Tools 扩展，只需创建 `.vscode/c_cpp_properties.json` 文件（tasks.json 不需要）：
 ```json
 {
     "configurations": [
