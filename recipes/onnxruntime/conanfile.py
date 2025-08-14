@@ -3,14 +3,14 @@ from conan.tools.cmake import cmake_layout, CMakeToolchain, CMakeDeps
 
 
 class OnnxruntimeConan(ConanFile):
-    name = "onnxruntime-wrapper"
-    version = "1.14.1"
+    name = "onnxruntime"
+    version = "1.18.1"
 
     settings = "os", "compiler", "build_type", "arch"
     generators = "CMakeDeps", "CMakeToolchain"
 
     def requirements(self):
-        self.requires("onnxruntime/1.14.1")
+        self.requires("onnxruntime/1.18.1")
 
 
     def configure(self):
