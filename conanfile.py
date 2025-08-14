@@ -12,8 +12,8 @@ class InferenceProjectConan(ConanFile):
         """定义包依赖"""
         # 使用 OpenCV 从源码构建，简化配置
         self.requires("opencv/4.8.1")
-        # 暂时注释掉 ONNX Runtime，专注于 OpenCV 构建
-        # self.requires("onnxruntime/1.18.1")
+        # 添加 ONNX Runtime 支持
+        self.requires("onnxruntime/1.18.1")
 
     def configure(self):
         """配置选项"""
