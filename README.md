@@ -9,14 +9,49 @@
 - **Git 子模块** 版本化的第三方依赖管理
 - **优化构建** 减少重复编译时间
 - **标准项目结构** 符合业界最佳实践
+- **🐳 Dev Container 支持** 一键在 Ubuntu 容器内开发
+
+## 🐳 使用 VS Code Dev Container 开发（推荐）
+
+为了避免 Windows 环境的各种兼容性问题，本项目配置了 VS Code Dev Container，可以在 Ubuntu 容器内进行开发。
+
+### 前置要求
+
+1. 安装 [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+2. 安装 [VS Code](https://code.visualstudio.com/)
+3. 安装 VS Code 扩展：[Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
+
+### 使用步骤
+
+1. 在 VS Code 中打开项目文件夹
+2. 按 `Ctrl+Shift+P` 打开命令面板
+3. 输入并选择 `Dev Containers: Reopen in Container`
+4. 等待容器构建完成（首次可能需要几分钟）
+5. 容器启动后，在终端中运行：
+   ```bash
+   ./build.sh
+   ```
+
+### Dev Container 特性
+
+- 🐧 基于 Ubuntu 22.04
+- 🛠️ 预装 C++ 开发工具链
+- 🐍 Python 3.11 + Conan 2.x
+- 📦 自动安装 OpenCV 和 ONNX Runtime 系统依赖
+- 🔧 预配置的 VS Code 扩展和设置
+- 🚀 开箱即用的开发环境
 
 ## 项目结构
 
 ```
 test_inference/
+├── .devcontainer/              # Dev Container 配置
+│   ├── devcontainer.json      # 容器配置
+│   └── setup.sh              # 环境设置脚本
 ├── CMakeLists.txt              # 主 CMake 配置文件
 ├── conanfile.py                # Conan 依赖配置 (Python 版本)
 ├── conanprofile                # Conan 编译器配置
+├── build.sh                    # Linux 构建脚本
 ├── README.md                   # 项目说明文档
 ├── .gitignore                  # Git 忽略文件
 ├── .gitmodules                 # Git 子模块配置
@@ -29,16 +64,16 @@ test_inference/
 ├──
 ├── third_party/               # 第三方源码依赖 (Git 子模块)
 │   └── opencv/                # OpenCV 源码 (Git 子模块)
-├── 
+├──
 ├── assets/                    # 资源文件
 │   ├── images/
 │   │   └── bus.jpg           # 测试图片
 │   └── models/
 │       └── yolov5n.onnx      # ONNX 模型文件
-├── 
+├──
 ├── build/                     # 构建输出目录
 │   └── bin/main.exe          # 编译生成的可执行文件
-└── scripts/                   # 构建和部署脚本
+└── scripts/                   # Windows 构建脚本
     ├── build.ps1             # PowerShell 构建脚本
     ├── clean.ps1             # 清理脚本
     └── conan_cache_manager.ps1 # Conan 缓存管理脚本
@@ -78,6 +113,18 @@ test_inference/
 - 优化的构建配置减少编译时间
 
 ## 构建步骤
+
+### 🐳 在 Dev Container 中构建（推荐）
+
+```bash
+# 简单构建
+./build.sh
+
+# 清理后重新构建
+./build.sh clean
+```
+
+### 💻 Windows 环境构建
 
 1. 设置环境变量：
    ```bash
