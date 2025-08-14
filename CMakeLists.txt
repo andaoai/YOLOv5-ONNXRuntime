@@ -8,15 +8,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # 禁用 OpenCV 中的 ITT 支持
 add_definitions(-DOPENCV_DISABLE_ITT=1)
 
-# 使用 Conan 管理的 OpenCV
+# 使用 Conan 管理的 OpenCV 和 ONNX Runtime
 include(${CMAKE_BINARY_DIR}/Release/generators/conan_toolchain.cmake OPTIONAL)
 find_package(OpenCV REQUIRED)
+find_package(onnxruntime REQUIRED)
 
-message(STATUS "Using Conan-managed OpenCV")
+message(STATUS "Using Conan-managed OpenCV and ONNX Runtime")
 message(STATUS "OpenCV target: opencv::opencv")
-
-# 暂时注释掉 ONNX Runtime，专注于 OpenCV 构建
-# find_package(onnxruntime REQUIRED)
+message(STATUS "ONNX Runtime target: onnxruntime::onnxruntime")
 
 # 设置项目目录变量
 set(PROJECT_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
@@ -26,11 +25,10 @@ set(PROJECT_ASSETS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/assets)
 # 创建可执行文件
 add_executable(main ${PROJECT_SOURCE_DIR}/main.cpp)
 
-# 链接 Conan 管理的 OpenCV 库
+# 链接 Conan 管理的依赖库
 target_link_libraries(main
     opencv::opencv
-    # 暂时注释掉 ONNX Runtime，专注于 OpenCV 构建
-    # onnxruntime::onnxruntime
+    onnxruntime::onnxruntime
 )
 
 # 包含头文件目录
