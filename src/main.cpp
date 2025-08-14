@@ -1,8 +1,9 @@
 #include <opencv2/opencv.hpp>
+#include <onnxruntime_cxx_api.h>
 #include <iostream>
 
 int main() {
-    std::cout << "OpenCV 完整功能测试" << std::endl;
+    std::cout << "OpenCV 和 ONNX Runtime 集成测试" << std::endl;
 
     // 测试 OpenCV 版本信息
     std::cout << "OpenCV 版本: " << CV_VERSION << std::endl;
@@ -31,6 +32,35 @@ int main() {
     cv::Mat copy = image.clone();
     std::cout << "矩阵克隆成功" << std::endl;
 
-    std::cout << "OpenCV 完整功能测试完成！" << std::endl;
+    std::cout << "OpenCV 功能测试完成！" << std::endl;
+
+    // 测试 ONNX Runtime
+    std::cout << "\n=== ONNX Runtime 测试 ===" << std::endl;
+    try {
+        // 创建 ONNX Runtime 环境
+        Ort::Env env(ORT_LOGGING_LEVEL_WARNING, "test");
+        std::cout << "ONNX Runtime 环境创建成功" << std::endl;
+
+        // 获取可用的执行提供者
+        std::vector<std::string> providers = Ort::GetAvailableProviders();
+        std::cout << "可用的执行提供者: ";
+        for (const auto& provider : providers) {
+            std::cout << provider << " ";
+        }
+        std::cout << std::endl;
+
+        // 创建会话选项
+        Ort::SessionOptions session_options;
+        session_options.SetIntraOpNumThreads(1);
+        session_options.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_EXTENDED);
+        std::cout << "ONNX Runtime 会话选项配置成功" << std::endl;
+
+    } catch (const Ort::Exception& e) {
+        std::cerr << "ONNX Runtime 错误: " << e.what() << std::endl;
+        return -1;
+    }
+
+    std::cout << "ONNX Runtime 测试完成！" << std::endl;
+    std::cout << "\n所有测试完成！OpenCV 和 ONNX Runtime 都正常工作。" << std::endl;
     return 0;
 }
