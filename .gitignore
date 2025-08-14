@@ -94,3 +94,4 @@ third_party/
 # But ignore build artifacts in third_party
 third_party/*/build/
 third_party/*/install/
+.conan2
