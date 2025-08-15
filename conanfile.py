@@ -32,7 +32,13 @@ class InferenceProjectConan(ConanFile):
         self.tool_requires("cmake/[>=3.15]")
 
     def layout(self):
-        cmake_layout(self)
+        # 使用标准的 CMake 布局：build/Release 和 build/Debug
+        if self.settings.build_type == "Release":
+            self.folders.build = "Release"
+            self.folders.generators = "Release/generators"
+        else:
+            self.folders.build = "Debug"
+            self.folders.generators = "Debug/generators"
 
     def generate(self):
         """生成构建文件"""

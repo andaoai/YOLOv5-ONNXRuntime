@@ -87,8 +87,8 @@ int main() {
     std::cout << "YOLOv5 ONNX 推理测试" << std::endl;
 
     // 模型和图片路径
-    const std::string model_path = "../assets/models/yolov5n.onnx";
-    const std::string image_path = "../assets/images/bus.jpg";
+    const std::string model_path = "assets/models/yolov5n.onnx";
+    const std::string image_path = "assets/images/bus.jpg";
 
     try {
         // 1. 加载图像
