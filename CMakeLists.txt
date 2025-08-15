@@ -174,8 +174,8 @@ else()
     message(STATUS "🔍 OpenCV 目标没有头文件路径，手动查找...")
     # 从 Release 版本的编译命令中提取的实际路径
     set(OPENCV_MANUAL_PATHS
-        "/home/vscode/.conan2/p/b/openc87b6fbbb87431/p/include"
-        "/home/vscode/.conan2/p/b/openc87b6fbbb87431/p/include/opencv4"
+        "/home/vscode/.conan2/p/b/openc4f12223446590/p/include"
+        "/home/vscode/.conan2/p/b/openc4f12223446590/p/include/opencv4"
     )
 
     foreach(path ${OPENCV_MANUAL_PATHS})
@@ -197,8 +197,8 @@ message(STATUS "🔍 ONNX 原始路径: ${ONNX_INCLUDE_DIRS}")
 
 # 手动添加 ONNX Runtime 头文件路径（从调试信息中提取）
 set(ONNX_MANUAL_PATHS
-    "/home/vscode/.conan2/p/b/onnxr37b44fb2c3935/p/include"
-    "/home/vscode/.conan2/p/b/onnxr37b44fb2c3935/p/include/onnxruntime/core/session"
+    "/home/vscode/.conan2/p/b/onnxr1c2c0b60fe458/p/include"
+    "/home/vscode/.conan2/p/b/onnxr1c2c0b60fe458/p/include/onnxruntime/core/session"
 )
 
 foreach(path ${ONNX_MANUAL_PATHS})
