@@ -32,8 +32,11 @@ _deps
 *.userosscache
 *.sln.docstates
 
-# Visual Studio Code
-.vscode/
+# Visual Studio Code (allow project configuration)
+# .vscode/
+.vscode/launch.json
+.vscode/tasks.json
+.vscode/*.log
 
 # Temporary files
 *.tmp
