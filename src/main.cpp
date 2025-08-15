@@ -87,8 +87,8 @@ int main() {
     std::cout << "YOLOv5 ONNX 推理测试" << std::endl;
 
     // 模型和图片路径
-    const std::string model_path = "assets/models/yolov5n.onnx";
-    const std::string image_path = "assets/images/bus.jpg";
+    const std::string model_path = "/workspaces/test_inference/assets/models/yolov5n.onnx";
+    const std::string image_path = "/workspaces/test_inference/assets/images/bus.jpg";
 
     try {
         // 1. 加载图像
@@ -155,8 +155,7 @@ int main() {
         try {
             auto output_tensors = session.Run(Ort::RunOptions{nullptr},
                                             input_node_names.data(), &input_tensor, 1,
-                                            output_node_names.data(), 1);
-            std::cout << "推理完成" << std::endl;
+                                            output_node_names.data(), 1);            std::cout << "推理完成" << std::endl;
 
             // 8. 后处理 - 解析检测结果
             auto output_shape = output_tensors[0].GetTensorTypeAndShapeInfo().GetShape();

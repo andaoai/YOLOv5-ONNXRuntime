@@ -50,6 +50,11 @@ test_inference/
 ├── .devcontainer/              # Dev Container 配置
 │   ├── devcontainer.json      # 容器配置
 │   └── setup.sh              # 环境设置脚本
+├── .vscode/                    # VSCode 配置
+│   ├── c_cpp_properties.json  # C++ 智能提示配置
+│   ├── launch.json            # 调试启动配置
+│   ├── settings.json          # 编辑器设置
+│   └── tasks.json             # 构建任务配置
 ├── CMakeLists.txt              # 主 CMake 配置文件
 ├── conanfile.py                # Conan 依赖配置
 ├── conanprofile                # Conan 编译器配置
@@ -75,7 +80,9 @@ test_inference/
 │   │   ├── bin/main         # 可执行文件
 │   │   └── compile_commands.json
 │   └── Debug/               # Debug 构建
-│       └── ...
+│       ├── generators/       # Conan 生成文件
+│       ├── bin/main         # Debug 可执行文件
+│       └── compile_commands.json
 ├──
 ├── scripts/                   # 构建脚本
 │   ├── build.ps1             # PowerShell 构建脚本
@@ -131,8 +138,10 @@ test_inference/
    ```
 
 3. **构建和运行**：
+
+   **Release 版本（生产环境）**：
    ```bash
-   # 安装依赖
+   # 安装 Release 依赖
    conan install . --output-folder=build --build=missing -s build_type=Release
 
    # 使用 VSCode CMake Tools 扩展构建
@@ -147,6 +156,25 @@ test_inference/
    # 运行推理
    cd ../..
    ./build/Release/bin/main
+   ```
+
+   **Debug 版本（开发调试）**：
+   ```bash
+   # 安装 Debug 依赖
+   conan install . --output-folder=build --build=missing -s build_type=Debug
+
+   # 配置 Debug 构建
+   cmake -S . -B build/Debug -G "Unix Makefiles" \
+     -DCMAKE_TOOLCHAIN_FILE=build/Debug/generators/conan_toolchain.cmake \
+     -DCMAKE_BUILD_TYPE=Debug
+
+   # 编译 Debug 版本
+   cmake --build build/Debug --config Debug -j$(nproc)
+
+   # 运行 Debug 版本
+   ./build/Debug/bin/main
+
+   # 或在 VSCode 中按 F5 启动调试
    ```
 
 ### 方法二：本地环境构建
@@ -244,6 +272,73 @@ cd build/Debug && cmake ../.. -DCMAKE_TOOLCHAIN_FILE=generators/conan_toolchain.
 - ✅ **调试支持**：支持断点调试
 - ✅ **代码跳转**：Ctrl+Click 跳转到定义
 - ✅ **编译数据库**：使用 `compile_commands.json`
+
+### 🐛 调试配置
+
+项目已配置完整的调试环境，支持在 VSCode 中进行断点调试：
+
+#### 快速调试步骤
+
+1. **构建 Debug 版本**：
+   ```bash
+   # 安装 Debug 依赖
+   conan install . --output-folder=build --build=missing -s build_type=Debug
+
+   # 配置 Debug 构建
+   cmake -S . -B build/Debug -G "Unix Makefiles" \
+     -DCMAKE_TOOLCHAIN_FILE=build/Debug/generators/conan_toolchain.cmake \
+     -DCMAKE_POLICY_DEFAULT_CMP0091=NEW \
+     -DCMAKE_BUILD_TYPE=Debug
+
+   # 编译 Debug 版本
+   cmake --build build/Debug --config Debug -j$(nproc)
+   ```
+
+2. **设置断点**：
+   - 在代码行号左侧点击设置红色断点
+   - 或按 `F9` 在当前行设置断点
+
+3. **启动调试**：
+   - 按 `F5` 启动调试
+   - 或点击调试面板的 "▶️ Debug C++ (main)" 按钮
+
+4. **调试操作**：
+   - `F5`：继续执行
+   - `F10`：单步跳过
+   - `F11`：单步进入
+   - `Shift+F11`：单步跳出
+   - `Shift+F5`：停止调试
+
+#### 调试配置文件
+
+项目包含以下调试配置文件：
+
+- **`.vscode/launch.json`**：调试启动配置
+- **`.vscode/tasks.json`**：构建任务配置
+- **`.vscode/c_cpp_properties.json`**：C++ 智能提示配置
+
+#### 命令行调试（可选）
+
+也可以使用 GDB 进行命令行调试：
+
+```bash
+# 启动 GDB
+gdb build/Debug/bin/main
+
+# 设置断点
+(gdb) break main
+(gdb) break src/main.cpp:160
+
+# 运行程序
+(gdb) run
+
+# 调试命令
+(gdb) next      # 下一行
+(gdb) step      # 进入函数
+(gdb) continue  # 继续执行
+(gdb) print var # 打印变量
+(gdb) quit      # 退出
+```
 
 ### 多配置构建
 

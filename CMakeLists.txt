@@ -9,14 +9,22 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_definitions(-DOPENCV_DISABLE_ITT=1)
 
 # 使用 Conan 管理的 OpenCV 和 ONNX Runtime
-# 库始终使用 Release 版本（性能更好），程序支持 Debug/Release 编译
+# 根据构建类型使用对应版本的库
 
-# 始终使用 Release 版本的库（无论程序是 Debug 还是 Release）
-set(CONAN_GENERATORS_PATHS
-    "${CMAKE_SOURCE_DIR}/build/Release/generators"
-    "${CMAKE_BINARY_DIR}/../Release/generators"
-    "${CMAKE_BINARY_DIR}/generators"
-)
+# 根据构建类型选择对应的 Conan 生成器
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set(CONAN_GENERATORS_PATHS
+        "${CMAKE_SOURCE_DIR}/build/Debug/generators"
+        "${CMAKE_BINARY_DIR}/../Debug/generators"
+        "${CMAKE_BINARY_DIR}/generators"
+    )
+else()
+    set(CONAN_GENERATORS_PATHS
+        "${CMAKE_SOURCE_DIR}/build/Release/generators"
+        "${CMAKE_BINARY_DIR}/../Release/generators"
+        "${CMAKE_BINARY_DIR}/generators"
+    )
+endif()
 
 set(CONAN_GENERATORS_DIR "")
 foreach(path ${CONAN_GENERATORS_PATHS})
@@ -28,12 +36,16 @@ foreach(path ${CONAN_GENERATORS_PATHS})
 endforeach()
 
 if(CONAN_GENERATORS_DIR STREQUAL "")
-    message(FATAL_ERROR "Could not find Conan generators directory. Please run: conan install . --output-folder=build --build=missing -s build_type=Release")
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        message(FATAL_ERROR "Could not find Conan generators directory. Please run: conan install . --output-folder=build --build=missing -s build_type=Debug")
+    else()
+        message(FATAL_ERROR "Could not find Conan generators directory. Please run: conan install . --output-folder=build --build=missing -s build_type=Release")
+    endif()
 endif()
 
 message(STATUS "Using Conan generators from: ${CONAN_GENERATORS_DIR}")
 message(STATUS "Program build type: ${CMAKE_BUILD_TYPE}")
-message(STATUS "Libraries: Release version (for performance)")
+message(STATUS "Libraries: ${CMAKE_BUILD_TYPE} version")
 
 include(${CONAN_GENERATORS_DIR}/cmakedeps_macros.cmake)
 include(${CONAN_GENERATORS_DIR}/conandeps_legacy.cmake)
@@ -52,11 +64,11 @@ set(PROJECT_ASSETS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/assets)
 # 创建可执行文件
 add_executable(main ${PROJECT_SOURCE_DIR}/main.cpp)
 
-# 设置编译选项：程序支持 Debug/Release，库使用 Release
+# 设置编译选项：程序和库都使用对应的构建类型
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_definitions(main PRIVATE DEBUG_BUILD=1)
     target_compile_options(main PRIVATE -g -O0 -Wall -Wextra)
-    message(STATUS "Building program in DEBUG mode with Release libraries")
+    message(STATUS "Building program in DEBUG mode with Debug libraries")
 else()
     target_compile_definitions(main PRIVATE RELEASE_BUILD=1)
     target_compile_options(main PRIVATE -O3 -DNDEBUG)

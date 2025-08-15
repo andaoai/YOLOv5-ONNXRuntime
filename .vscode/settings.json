@@ -95,7 +95,13 @@
         "streambuf": "cpp",
         "thread": "cpp",
         "typeindex": "cpp",
-        "typeinfo": "cpp"
+        "typeinfo": "cpp",
+        "bit": "cpp",
+        "compare": "cpp",
+        "concepts": "cpp",
+        "numbers": "cpp",
+        "semaphore": "cpp",
+        "stop_token": "cpp"
     },
     "files.exclude": {
         "**/build/CMakeFiles": true,
