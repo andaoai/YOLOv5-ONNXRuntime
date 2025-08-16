@@ -29,10 +29,7 @@
 2. 按 `Ctrl+Shift+P` 打开命令面板
 3. 输入并选择 `Dev Containers: Reopen in Container`
 4. 等待容器构建完成（首次可能需要几分钟）
-5. 容器启动后，在终端中运行：
-   ```bash
-   ./build.sh
-   ```
+5. 容器启动后，按照下面的构建步骤进行开发
 
 ### Dev Container 特性
 
@@ -49,55 +46,53 @@
 test_inference/
 ├── .devcontainer/              # Dev Container 配置
 │   ├── devcontainer.json      # 容器配置
-│   └── setup.sh              # 环境设置脚本
+│   ├── Dockerfile             # 容器镜像定义
+│   └── reinstall-cmake.sh     # CMake 重新安装脚本
 ├── .vscode/                    # VSCode 配置
 │   ├── c_cpp_properties.json  # C++ 智能提示配置
 │   ├── launch.json            # 调试启动配置
 │   ├── settings.json          # 编辑器设置
 │   └── tasks.json             # 构建任务配置
 ├── CMakeLists.txt              # 主 CMake 配置文件
+├── CMakeUserPresets.json       # CMake 用户预设配置
 ├── conanfile.py                # Conan 依赖配置
 ├── conanprofile                # Conan 编译器配置
 ├── README.md                   # 项目说明文档
 ├── compile_commands.json       # VSCode 编译数据库
-├──
 ├── src/                        # 源代码目录
 │   └── main.cpp               # YOLOv5 推理主程序
-├──
 ├── include/                    # 项目头文件目录
 ├── tests/                      # 测试代码目录
-├──
-├── assets/                    # 资源文件
+│   └── CMakeLists.txt         # 测试构建配置
+├── assets/                     # 资源文件
 │   ├── images/
 │   │   ├── bus.jpg           # 测试图片
 │   │   └── bus_result.jpg    # 检测结果图片
 │   └── models/
 │       └── yolov5n.onnx      # YOLOv5 ONNX 模型
-├──
-├── build/                     # 构建输出目录
+├── build/                      # 构建输出目录（生成）
 │   ├── Release/              # Release 构建
 │   │   ├── generators/       # Conan 生成文件
-│   │   ├── bin/main         # 可执行文件
-│   │   └── compile_commands.json
+│   │   └── bin/main         # 可执行文件
 │   └── Debug/               # Debug 构建
 │       ├── generators/       # Conan 生成文件
-│       ├── bin/main         # Debug 可执行文件
-│       └── compile_commands.json
-├──
-├── scripts/                   # 构建脚本和下载文件
-└── recipes/                   # 自定义 Conan 配方
+│       └── bin/main         # Debug 可执行文件
+├── scripts/                    # 脚本目录
+│   └── downloads/            # 下载文件目录
+└── recipes/                    # 自定义 Conan 配方
     ├── opencv/               # OpenCV 配方
-    └── onnxruntime/         # ONNX Runtime 配方
+    ├── onnxruntime/         # ONNX Runtime 配方
+    └── openvino/            # OpenVINO 配方
 ```
 
 ## 🎯 核心功能
 
 ### YOLOv5 目标检测
-- **🖼️ 图像预处理**：自动缩放、填充、归一化
-- **🧠 ONNX 推理**：支持 Float16 优化推理
+- **🖼️ 图像预处理**：自动缩放、填充、归一化（保持宽高比）
+- **🧠 ONNX 推理**：支持 Float16 优化推理，多线程加速
 - **🎯 目标检测**：检测 80 种 COCO 类别目标
-- **📊 后处理**：置信度过滤、NMS 非极大值抑制
-- **🎨 结果可视化**：绘制检测框和标签
+- **📊 后处理**：置信度过滤（0.5）、NMS 非极大值抑制（0.4）
+- **🎨 结果可视化**：绘制绿色检测框和标签，显示置信度百分比
 
 ### 支持的目标类别
 支持 COCO 数据集的 80 种类别，包括：
@@ -114,10 +109,11 @@ test_inference/
 - **Conan** 2.x
 - **C++ 编译器**：GCC 11+ / Clang 12+ / MSVC 2019+
 - **操作系统**：Linux / macOS（推荐使用 Dev Container）
+- **Docker Desktop**：用于 Dev Container 开发环境
 
-### 依赖库（自动管理）
-- **OpenCV 4.8.1**：计算机视觉库
-- **ONNX Runtime 1.18.1**：机器学习推理引擎
+### 依赖库（Conan 自动管理）
+- **OpenCV 4.8.1**：计算机视觉库，禁用 DNN 和 contrib 模块
+- **ONNX Runtime 1.18.1**：机器学习推理引擎，支持 Float16 优化
 
 ## 🚀 快速开始
 
@@ -217,13 +213,14 @@ YOLOv5 ONNX 推理测试
   - person (置信度: 0.80) 位置: [52, 401, 154, 493]
   - person (置信度: 0.64) 位置: [680, 369, 129, 504]
   - bus (置信度: 0.51) 位置: [55, 236, 754, 531]
-结果已保存到: assets/images/bus_result.jpg
+结果已保存到: ../assets/images/bus_result.jpg
 YOLOv5 推理测试完成！
 ```
 
 检测结果图像会保存到 `assets/images/bus_result.jpg`，包含：
 - 🟢 **绿色边界框**：标识检测到的目标
-- 🏷️ **类别标签**：显示目标类别和置信度
+- 🏷️ **类别标签**：显示目标类别和置信度百分比
+- 📊 **坐标信息**：输出格式为 [x, y, width, height]
 
 ## 🔧 高级配置
 
@@ -253,9 +250,13 @@ cd build/Debug && cmake ../.. -DCMAKE_TOOLCHAIN_FILE=generators/conan_toolchain.
 1. 将 ONNX 模型文件放到 `assets/models/` 目录
 2. 修改 `src/main.cpp` 中的模型路径：
    ```cpp
-   const std::string model_path = "assets/models/your_model.onnx";
+   const std::string model_path = "/workspaces/test_inference/assets/models/your_model.onnx";
    ```
-3. 重新编译运行
+3. 如果使用不同的图片，也需要修改图片路径：
+   ```cpp
+   const std::string image_path = "/workspaces/test_inference/assets/images/your_image.jpg";
+   ```
+4. 重新编译运行
 
 ## 🔧 开发环境配置
 
@@ -339,33 +340,9 @@ gdb build/Debug/bin/main
 (gdb) quit      # 退出
 ```
 
-### 多配置构建
 
-项目支持标准的多配置构建：
 
-```bash
-# 首次使用需要创建 Conan 配置文件
-conan profile detect
 
-# Release 构建（优化版本）
-conan install . --output-folder=build -s build_type=Release
-cd build/Release && cmake ../.. -DCMAKE_TOOLCHAIN_FILE=generators/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release
-
-# Debug 构建（调试版本）
-conan install . --output-folder=build -s build_type=Debug
-cd build/Debug && cmake ../.. -DCMAKE_TOOLCHAIN_FILE=generators/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Debug
-```
-
-### 自定义模型
-
-要使用自己的 YOLOv5 模型：
-
-1. 将 ONNX 模型文件放到 `assets/models/` 目录
-2. 修改 `src/main.cpp` 中的模型路径：
-   ```cpp
-   const std::string model_path = "assets/models/your_model.onnx";
-   ```
-3. 重新编译运行
 
 ## 🔧 故障排除
 
@@ -397,44 +374,46 @@ cd build/Debug && cmake ../.. -DCMAKE_TOOLCHAIN_FILE=generators/conan_toolchain.
 
 ### 核心组件
 
+项目采用函数式设计，主要包含以下核心函数：
+
 ```cpp
-// YOLOv5 推理流程
-class YOLOv5Detector {
-public:
-    // 初始化 ONNX Runtime 会话
-    bool initialize(const std::string& model_path);
-
-    // 完整的检测流程
-    std::vector<Detection> detect(const cv::Mat& image);
-
-private:
-    // 图像预处理：缩放、填充、归一化
-    cv::Mat preprocess(const cv::Mat& image);
-
-    // ONNX 推理
-    std::vector<float> inference(const cv::Mat& input);
-
-    // 后处理：解析输出、NMS
-    std::vector<Detection> postprocess(const std::vector<float>& output);
-
-    // 结果可视化
-    void visualize(cv::Mat& image, const std::vector<Detection>& detections);
+// 检测结果结构
+struct Detection {
+    cv::Rect box;        // 边界框
+    float confidence;    // 置信度
+    int class_id;       // 类别ID
 };
+
+// 图像预处理：缩放、填充、归一化
+cv::Mat preprocess_image(const cv::Mat& image, int input_width, int input_height);
+
+// NMS 非极大值抑制
+std::vector<Detection> apply_nms(std::vector<Detection>& detections, float nms_threshold);
+
+// 主推理流程在 main() 函数中实现：
+// 1. 加载图像和模型
+// 2. 创建 ONNX Runtime 会话
+// 3. 图像预处理
+// 4. Float16 推理
+// 5. 后处理和 NMS
+// 6. 结果可视化和保存
 ```
 
 ### 数据流
 
 ```
-输入图像 → 预处理 → ONNX推理 → 后处理 → 可视化 → 输出结果
-    ↓         ↓        ↓        ↓        ↓
-  原始图像   标准化    特征提取   目标检测   绘制边界框
+输入图像 → 预处理 → Float16推理 → 后处理 → NMS → 可视化 → 输出结果
+    ↓         ↓         ↓         ↓      ↓      ↓
+  原始图像   缩放填充   特征提取   解析输出  去重  绘制边界框
+  810x1080  640x640   25200x85  检测框   过滤   保存图片
 ```
 
 ### 依赖关系
 
-- **OpenCV 4.8.1**：图像 I/O、预处理、可视化
-- **ONNX Runtime 1.18.1**：模型推理引擎
-- **C++17 STL**：数据结构和算法
+- **OpenCV 4.8.1**：图像 I/O、预处理、可视化、BGR↔RGB转换
+- **ONNX Runtime 1.18.1**：Float16 模型推理引擎，多线程优化
+- **C++17 STL**：数据结构和算法，向量操作
+- **Conan 2.x**：自动化依赖管理和构建
 
 ## 📚 学习资源
 
