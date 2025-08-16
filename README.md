@@ -84,10 +84,7 @@ test_inference/
 │       ├── bin/main         # Debug 可执行文件
 │       └── compile_commands.json
 ├──
-├── scripts/                   # 构建脚本
-│   ├── build.ps1             # PowerShell 构建脚本
-│   ├── clean.ps1             # 清理脚本
-│   └── conan_cache_manager.ps1 # Conan 缓存管理
+├── scripts/                   # 构建脚本和下载文件
 └── recipes/                   # 自定义 Conan 配方
     ├── opencv/               # OpenCV 配方
     └── onnxruntime/         # ONNX Runtime 配方
@@ -116,7 +113,7 @@ test_inference/
 - **CMake** 3.15+
 - **Conan** 2.x
 - **C++ 编译器**：GCC 11+ / Clang 12+ / MSVC 2019+
-- **操作系统**：Linux / Windows / macOS
+- **操作系统**：Linux / macOS（推荐使用 Dev Container）
 
 ### 依赖库（自动管理）
 - **OpenCV 4.8.1**：计算机视觉库
@@ -141,6 +138,9 @@ test_inference/
 
    **Release 版本（生产环境）**：
    ```bash
+   # 首次使用需要创建 Conan 配置文件
+   conan profile detect
+
    # 安装 Release 依赖
    conan install . --output-folder=build --build=missing -s build_type=Release
 
@@ -160,6 +160,9 @@ test_inference/
 
    **Debug 版本（开发调试）**：
    ```bash
+   # 首次使用需要创建 Conan 配置文件（如果之前没有运行过）
+   conan profile detect
+
    # 安装 Debug 依赖
    conan install . --output-folder=build --build=missing -s build_type=Debug
 
@@ -181,6 +184,9 @@ test_inference/
 
 1. **安装依赖**：
    ```bash
+   # 首次使用需要创建 Conan 配置文件
+   conan profile detect
+
    # 安装 Conan 依赖
    conan install . --output-folder=build --build=missing -s build_type=Release
    ```
@@ -226,6 +232,9 @@ YOLOv5 推理测试完成！
 项目支持标准的多配置构建：
 
 ```bash
+# 首次使用需要创建 Conan 配置文件
+conan profile detect
+
 # Release 构建（优化版本）
 conan install . --output-folder=build -s build_type=Release
 cd build/Release && cmake ../.. -DCMAKE_TOOLCHAIN_FILE=generators/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release
@@ -235,20 +244,7 @@ conan install . --output-folder=build -s build_type=Debug
 cd build/Debug && cmake ../.. -DCMAKE_TOOLCHAIN_FILE=generators/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Debug
 ```
 
-### Windows PowerShell 脚本
 
-项目提供了 Windows 环境的构建脚本：
-
-```powershell
-# 完整构建
-.\scripts\build.ps1 -Clean
-
-# 快速构建
-.\scripts\build.ps1
-
-# 缓存管理
-.\scripts\conan_cache_manager.ps1 -Action status
-```
 
 ### 自定义模型
 
@@ -281,6 +277,9 @@ cd build/Debug && cmake ../.. -DCMAKE_TOOLCHAIN_FILE=generators/conan_toolchain.
 
 1. **构建 Debug 版本**：
    ```bash
+   # 首次使用需要创建 Conan 配置文件（如果之前没有运行过）
+   conan profile detect
+
    # 安装 Debug 依赖
    conan install . --output-folder=build --build=missing -s build_type=Debug
 
@@ -345,6 +344,9 @@ gdb build/Debug/bin/main
 项目支持标准的多配置构建：
 
 ```bash
+# 首次使用需要创建 Conan 配置文件
+conan profile detect
+
 # Release 构建（优化版本）
 conan install . --output-folder=build -s build_type=Release
 cd build/Release && cmake ../.. -DCMAKE_TOOLCHAIN_FILE=generators/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release
@@ -369,7 +371,13 @@ cd build/Debug && cmake ../.. -DCMAKE_TOOLCHAIN_FILE=generators/conan_toolchain.
 
 ### 常见问题
 
-1. **Conan 找不到编译器**
+1. **Conan 默认配置文件不存在**
+   ```
+   ERROR: The default build profile '/home/vscode/.conan2/profiles/default' doesn't exist.
+   ```
+   **解决方案**：运行 `conan profile detect` 创建默认配置文件
+
+2. **Conan 找不到编译器**
    - 检查编译器是否在 PATH 中
    - 确保使用兼容的编译器版本
 
