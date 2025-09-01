@@ -8,7 +8,7 @@
 - **🖼️ 图像处理**：基于 OpenCV 4.8.1 的图像预处理和后处理
 - **⚡ 高性能推理**：ONNX Runtime 1.18.1 优化推理引擎
 - **🏗️ 现代 C++17**：符合现代 C++ 标准的代码实现
-- **📦 Conan 2.x**：自动化依赖管理，无需手动安装库
+- **📦 Conan 2.x**：自动化依赖管理，直接使用 Conan Center 官方包
 - **🔧 标准构建系统**：支持 Release/Debug 多配置构建
 - **🐳 Dev Container 支持**：一键在 Ubuntu 容器内开发
 - **💻 VSCode 集成**：完整的 C++ 开发环境配置
@@ -77,12 +77,8 @@ test_inference/
 │   └── Debug/               # Debug 构建
 │       ├── generators/       # Conan 生成文件
 │       └── bin/main         # Debug 可执行文件
-├── scripts/                    # 脚本目录
-│   └── downloads/            # 下载文件目录
-└── recipes/                    # 自定义 Conan 配方
-    ├── opencv/               # OpenCV 配方
-    ├── onnxruntime/         # ONNX Runtime 配方
-    └── openvino/            # OpenVINO 配方
+└── scripts/                    # 脚本目录
+    └── downloads/            # 下载文件目录
 ```
 
 ## 🎯 核心功能
@@ -138,7 +134,7 @@ test_inference/
    conan profile detect
 
    # 安装 Release 依赖
-   conan install . --output-folder=build --build=missing -s build_type=Release
+   conan install . --build=missing -s build_type=Release
 
    # 使用 VSCode CMake Tools 扩展构建
    # 按 Ctrl+Shift+P → "CMake: Configure"
@@ -155,12 +151,17 @@ test_inference/
    ```
 
    **Debug 版本（开发调试）**：
+
+   **方法一：完整 Debug 构建（依赖库也是 Debug 版本）**：
    ```bash
+   # 在项目根目录下执行以下命令
+   cd /workspaces/test_inference
+
    # 首次使用需要创建 Conan 配置文件（如果之前没有运行过）
    conan profile detect
 
-   # 安装 Debug 依赖
-   conan install . --output-folder=build --build=missing -s build_type=Debug
+   # 安装 Debug 依赖（所有库都构建为 Debug 版本）
+   conan install . --build=missing -s build_type=Debug
 
    # 配置 Debug 构建
    cmake -S . -B build/Debug -G "Unix Makefiles" \
@@ -175,6 +176,41 @@ test_inference/
 
    # 或在 VSCode 中按 F5 启动调试
    ```
+
+   **方法二：混合构建（推荐用于日常调试）**：
+   ```bash
+   # 在项目根目录下执行以下命令
+   cd /workspaces/test_inference
+
+   # 首次使用需要创建 Conan 配置文件（如果之前没有运行过）
+   conan profile detect
+
+   # 使用 Release 版本的依赖库（更快的构建和运行速度）
+   conan install . --build=missing -s build_type=Release
+
+   # 配置 Debug 构建（使用 Release 版本的依赖库）
+   cmake -S . -B build/Debug \
+      -DCMAKE_TOOLCHAIN_FILE=build/Release/generators/conan_toolchain.cmake \
+      -DCMAKE_BUILD_TYPE=Debug \
+      -DCMAKE_MAP_IMPORTED_CONFIG_DEBUG=Release
+
+   # 编译 Debug 版本
+   cmake --build build/Debug --config Debug -j$(nproc)
+
+   # 运行 Debug 版本
+   ./build/Debug/bin/main
+
+   # 或在 VSCode 中按 F5 启动调试
+   ```
+
+   **💡 调试方法选择建议**：
+   - **方法一**：当需要调试依赖库内部代码时使用
+   - **方法二**：日常开发调试推荐，构建更快，依赖库性能更好
+
+   **🔧 混合构建原理说明**：
+   - `CMAKE_MAP_IMPORTED_CONFIG_DEBUG=Release`：告诉 CMake 当项目构建类型为 Debug 时，使用 Release 版本的导入目标（依赖库）
+   - 这样可以实现：项目代码编译为 Debug（可调试），但链接 Release 版本的依赖库（性能更好）
+   - CMakeLists.txt 中已自动配置此选项，无需手动设置
 
 ### 方法二：本地环境构建
 
@@ -277,17 +313,39 @@ cd build/Debug && cmake ../.. -DCMAKE_TOOLCHAIN_FILE=generators/conan_toolchain.
 #### 快速调试步骤
 
 1. **构建 Debug 版本**：
+
+   **推荐方法（混合构建）**：
    ```bash
+   # 在项目根目录下执行以下命令
+   cd /workspaces/test_inference
+
    # 首次使用需要创建 Conan 配置文件（如果之前没有运行过）
    conan profile detect
 
-   # 安装 Debug 依赖
+   # 使用 Release 版本的依赖库（构建更快）
+   conan install . --build=missing -s build_type=Release
+
+   # 配置 Debug 构建（使用 Release 依赖库，但项目代码为 Debug）
+   cmake -S . -B build/Debug -G "Unix Makefiles" \
+     -DCMAKE_TOOLCHAIN_FILE=build/Release/generators/conan_toolchain.cmake \
+     -DCMAKE_BUILD_TYPE=Debug \
+     -DCMAKE_MAP_IMPORTED_CONFIG_DEBUG=Release
+
+   # 编译 Debug 版本
+   cmake --build build/Debug --config Debug -j$(nproc)
+   ```
+
+   **完整 Debug 构建（如需调试依赖库）**：
+   ```bash
+   # 在项目根目录下执行以下命令
+   cd /workspaces/test_inference
+
+   # 安装 Debug 依赖（所有库都是 Debug 版本）
    conan install . --output-folder=build --build=missing -s build_type=Debug
 
    # 配置 Debug 构建
    cmake -S . -B build/Debug -G "Unix Makefiles" \
      -DCMAKE_TOOLCHAIN_FILE=build/Debug/generators/conan_toolchain.cmake \
-     -DCMAKE_POLICY_DEFAULT_CMP0091=NEW \
      -DCMAKE_BUILD_TYPE=Debug
 
    # 编译 Debug 版本
