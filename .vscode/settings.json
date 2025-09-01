@@ -25,7 +25,7 @@
     "cmake.preferredGenerators": ["Unix Makefiles", "Ninja"],
     "cmake.automaticReconfigure": false,
     "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
-    "C_Cpp.default.compileCommands": "${workspaceFolder}/build/Release/compile_commands.json",
+    "C_Cpp.default.compileCommands": "${workspaceFolder}/compile_commands.json",
     "C_Cpp.default.intelliSenseMode": "linux-gcc-x64",
     "C_Cpp.default.cppStandard": "c++17",
     "C_Cpp.default.cStandard": "c17",
