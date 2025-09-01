@@ -31,5 +31,15 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
         htop \
         tree \
         jq \
+        sudo \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
+
+# Ensure vscode user has proper permissions
+RUN usermod -aG sudo vscode \
+    && echo "vscode ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/vscode \
+    && chmod 0440 /etc/sudoers.d/vscode
+
+# Create necessary directories for VS Code server
+RUN mkdir -p /home/vscode/.vscode-server /home/vscode/.vscode-server-insiders \
+    && chown -R vscode:vscode /home/vscode/.vscode-server /home/vscode/.vscode-server-insiders
