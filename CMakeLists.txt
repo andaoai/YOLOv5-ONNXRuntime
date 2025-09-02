@@ -37,7 +37,10 @@ find_package(onnxruntime REQUIRED)
 message(STATUS "Using Conan-managed OpenCV and ONNX Runtime")
 
 # 创建可执行文件
-add_executable(main src/main.cpp)
+add_executable(main
+    src/main.cpp
+    src/yolov5.cpp
+)
 
 # 设置编译选项
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
