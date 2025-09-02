@@ -1,6 +1,26 @@
-# YOLOv5 ONNX 推理项目
+# YOLOv5-ONNXRuntime
 
 一个基于 OpenCV 和 ONNX Runtime 的现代化 C++ 目标检测项目，实现了完整的 YOLOv5 推理流程。
+
+🔗 **项目地址**: [https://github.com/andaoai/YOLOv5-ONNXRuntime](https://github.com/andaoai/YOLOv5-ONNXRuntime)
+
+## 📋 目录
+
+- [🚀 项目特点](#-项目特点)
+- [🐳 使用 VS Code Dev Container 开发（推荐）](#-使用-vs-code-dev-container-开发推荐)
+- [📁 项目结构](#-项目结构)
+- [🎯 核心功能](#-核心功能)
+- [🛠️ 系统要求](#️-系统要求)
+- [🚀 快速开始](#-快速开始)
+- [📊 运行结果](#-运行结果)
+- [🔧 高级配置](#-高级配置)
+- [💻 代码实现详解](#-代码实现详解)
+- [🏗️ 技术架构](#️-技术架构)
+- [🔧 开发环境配置](#-开发环境配置)
+- [🔧 故障排除](#-故障排除)
+- [📚 学习资源](#-学习资源)
+- [🤝 贡献](#-贡献)
+- [📄 许可证](#-许可证)
 
 ## 🚀 项目特点
 
@@ -43,7 +63,7 @@
 ## 📁 项目结构
 
 ```
-test_inference/
+YOLOv5-ONNXRuntime/
 ├── .devcontainer/              # Dev Container 配置
 │   ├── devcontainer.json      # 容器配置
 │   ├── Dockerfile             # 容器镜像定义
@@ -58,27 +78,22 @@ test_inference/
 ├── conanfile.py                # Conan 依赖配置
 ├── conanprofile                # Conan 编译器配置
 ├── README.md                   # 项目说明文档
-├── compile_commands.json       # VSCode 编译数据库
+├── compile_commands.json       # VSCode 编译数据库（生成）
 ├── src/                        # 源代码目录
 │   └── main.cpp               # YOLOv5 推理主程序
-├── include/                    # 项目头文件目录
-├── tests/                      # 测试代码目录
-│   └── CMakeLists.txt         # 测试构建配置
 ├── assets/                     # 资源文件
-│   ├── images/
+│   ├── images/                # 图像文件
 │   │   ├── bus.jpg           # 测试图片
 │   │   └── bus_result.jpg    # 检测结果图片
-│   └── models/
+│   └── models/                # 模型文件
 │       └── yolov5n.onnx      # YOLOv5 ONNX 模型
-├── build/                      # 构建输出目录（生成）
-│   ├── Release/              # Release 构建
-│   │   ├── generators/       # Conan 生成文件
-│   │   └── bin/main         # 可执行文件
-│   └── Debug/               # Debug 构建
-│       ├── generators/       # Conan 生成文件
-│       └── bin/main         # Debug 可执行文件
-└── scripts/                    # 脚本目录
-    └── downloads/            # 下载文件目录
+└── build/                      # 构建输出目录（生成）
+    ├── Release/               # Release 构建
+    │   ├── generators/        # Conan 生成文件
+    │   └── bin/main          # 可执行文件
+    └── Debug/                 # Debug 构建
+        ├── generators/        # Conan 生成文件
+        └── bin/main          # Debug 可执行文件
 ```
 
 ## 🎯 核心功能
@@ -155,7 +170,7 @@ test_inference/
    **方法一：完整 Debug 构建（依赖库也是 Debug 版本）**：
    ```bash
    # 在项目根目录下执行以下命令
-   cd /workspaces/test_inference
+   cd /workspaces/YOLOv5-ONNXRuntime
 
    # 首次使用需要创建 Conan 配置文件（如果之前没有运行过）
    conan profile detect
@@ -180,7 +195,7 @@ test_inference/
    **方法二：混合构建（推荐用于日常调试）**：
    ```bash
    # 在项目根目录下执行以下命令
-   cd /workspaces/test_inference
+   cd /workspaces/YOLOv5-ONNXRuntime
 
    # 首次使用需要创建 Conan 配置文件（如果之前没有运行过）
    conan profile detect
@@ -286,11 +301,11 @@ cd build/Debug && cmake ../.. -DCMAKE_TOOLCHAIN_FILE=generators/conan_toolchain.
 1. 将 ONNX 模型文件放到 `assets/models/` 目录
 2. 修改 `src/main.cpp` 中的模型路径：
    ```cpp
-   const std::string model_path = "/workspaces/test_inference/assets/models/your_model.onnx";
+   const std::string model_path = "/workspaces/YOLOv5-ONNXRuntime/assets/models/your_model.onnx";
    ```
 3. 如果使用不同的图片，也需要修改图片路径：
    ```cpp
-   const std::string image_path = "/workspaces/test_inference/assets/images/your_image.jpg";
+   const std::string image_path = "/workspaces/YOLOv5-ONNXRuntime/assets/images/your_image.jpg";
    ```
 4. 重新编译运行
 
@@ -317,7 +332,7 @@ cd build/Debug && cmake ../.. -DCMAKE_TOOLCHAIN_FILE=generators/conan_toolchain.
    **推荐方法（混合构建）**：
    ```bash
    # 在项目根目录下执行以下命令
-   cd /workspaces/test_inference
+   cd /workspaces/YOLOv5-ONNXRuntime
 
    # 首次使用需要创建 Conan 配置文件（如果之前没有运行过）
    conan profile detect
@@ -338,7 +353,7 @@ cd build/Debug && cmake ../.. -DCMAKE_TOOLCHAIN_FILE=generators/conan_toolchain.
    **完整 Debug 构建（如需调试依赖库）**：
    ```bash
    # 在项目根目录下执行以下命令
-   cd /workspaces/test_inference
+   cd /workspaces/YOLOv5-ONNXRuntime
 
    # 安装 Debug 依赖（所有库都是 Debug 版本）
    conan install . --output-folder=build --build=missing -s build_type=Debug
@@ -428,13 +443,41 @@ gdb build/Debug/bin/main
    - 确保 `compile_commands.json` 文件存在
    - 重新加载 VSCode IntelliSense
 
+## 💻 代码实现详解
+
+### 主要文件说明
+
+- **`src/main.cpp`**：主程序文件，包含完整的 YOLOv5 推理流程
+- **`CMakeLists.txt`**：CMake 构建配置，支持 Debug/Release 多配置
+- **`conanfile.py`**：Conan 依赖管理，自动下载 OpenCV 和 ONNX Runtime
+- **`assets/models/yolov5n.onnx`**：YOLOv5 Nano 模型（最轻量版本）
+- **`assets/images/bus.jpg`**：测试图像
+
+### 关键技术实现
+
+1. **Float16 优化推理**：
+   - 使用 `Ort::Float16_t` 类型减少内存占用
+   - 支持硬件加速（如果可用）
+   - 保持推理精度的同时提升性能
+
+2. **智能图像预处理**：
+   - 保持宽高比的 letterbox 缩放
+   - 自动计算填充偏移量
+   - BGR→RGB 颜色空间转换
+
+3. **高效后处理**：
+   - 向量化的置信度过滤
+   - 基于 IoU 的 NMS 算法
+   - 坐标系自动转换
+
 ## 🏗️ 技术架构
 
 ### 核心组件
 
-项目采用函数式设计，主要包含以下核心函数：
+项目采用函数式设计，主要包含以下核心组件：
 
-```cpp
+<augment_code_snippet path="src/main.cpp" mode="EXCERPT">
+````cpp
 // 检测结果结构
 struct Detection {
     cv::Rect box;        // 边界框
@@ -442,20 +485,39 @@ struct Detection {
     int class_id;       // 类别ID
 };
 
-// 图像预处理：缩放、填充、归一化
+// COCO 数据集 80 种类别名称
+const std::vector<std::string> class_names = {
+    "person", "bicycle", "car", "motorcycle", "airplane", "bus", "train", "truck", "boat", "traffic light",
+    // ... 完整的 80 种类别
+};
+````
+</augment_code_snippet>
+
+**核心函数实现**：
+
+1. **图像预处理函数**：
+<augment_code_snippet path="src/main.cpp" mode="EXCERPT">
+````cpp
+// 保持宽高比的缩放、填充、归一化和 BGR→RGB 转换
 cv::Mat preprocess_image(const cv::Mat& image, int input_width, int input_height);
+````
+</augment_code_snippet>
 
-// NMS 非极大值抑制
+2. **NMS 非极大值抑制**：
+<augment_code_snippet path="src/main.cpp" mode="EXCERPT">
+````cpp
+// IoU 计算和重叠检测框过滤
 std::vector<Detection> apply_nms(std::vector<Detection>& detections, float nms_threshold);
+````
+</augment_code_snippet>
 
-// 主推理流程在 main() 函数中实现：
-// 1. 加载图像和模型
-// 2. 创建 ONNX Runtime 会话
-// 3. 图像预处理
-// 4. Float16 推理
-// 5. 后处理和 NMS
-// 6. 结果可视化和保存
-```
+3. **主推理流程**（在 main() 函数中实现）：
+   - 加载图像和 ONNX 模型
+   - 创建 ONNX Runtime 会话（4线程优化）
+   - 图像预处理（640x640 输入）
+   - **Float16 推理**（内存和性能优化）
+   - 后处理和 NMS（置信度 0.5，NMS 0.4）
+   - 结果可视化和保存
 
 ### 数据流
 
@@ -465,6 +527,28 @@ std::vector<Detection> apply_nms(std::vector<Detection>& detections, float nms_t
   原始图像   缩放填充   特征提取   解析输出  去重  绘制边界框
   810x1080  640x640   25200x85  检测框   过滤   保存图片
 ```
+
+**详细处理流程**：
+
+1. **图像加载**：OpenCV 读取 JPG 图像（BGR 格式）
+2. **预处理**：
+   - 保持宽高比缩放到 640x640
+   - 灰色填充（letterbox）
+   - 归一化到 [0,1] 范围
+   - BGR → RGB 颜色空间转换
+   - HWC → CHW 维度转换
+3. **推理**：
+   - 转换为 Float16 格式（内存优化）
+   - ONNX Runtime 4线程推理
+   - 输出：[1, 25200, 85] 张量
+4. **后处理**：
+   - 置信度过滤（> 0.5）
+   - 坐标反变换（640x640 → 原图尺寸）
+   - NMS 去重（IoU > 0.4）
+5. **可视化**：
+   - 绘制绿色边界框
+   - 添加类别标签和置信度
+   - 保存结果图像
 
 ### 依赖关系
 
@@ -487,7 +571,7 @@ std::vector<Detection> apply_nms(std::vector<Detection>& detections, float nms_t
 
 ### 贡献指南
 
-1. Fork 项目
+1. Fork 项目：[https://github.com/andaoai/YOLOv5-ONNXRuntime](https://github.com/andaoai/YOLOv5-ONNXRuntime)
 2. 创建特性分支：`git checkout -b feature/amazing-feature`
 3. 提交更改：`git commit -m 'Add amazing feature'`
 4. 推送分支：`git push origin feature/amazing-feature`
