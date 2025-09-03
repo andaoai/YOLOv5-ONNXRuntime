@@ -40,7 +40,7 @@ int main() {
         cv::Mat result_image = detector.draw_detections(image, detections);
 
         // 保存结果
-        std::string output_path = "../assets/images/bus_result.jpg";
+        std::string output_path = "/workspaces/YOLOv5-ONNXRuntime/assets/images/bus_result.jpg";
         cv::imwrite(output_path, result_image);
         std::cout << "结果已保存到: " << output_path << std::endl;
 
