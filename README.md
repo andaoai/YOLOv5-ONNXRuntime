@@ -1,6 +1,6 @@
 # YOLOv5-ONNXRuntime
 
-一个基于 OpenCV 和 ONNX Runtime 的现代化 C++ 目标检测项目，实现了完整的 YOLOv5 推理流程。
+一个基于 OpenCV 和 ONNX Runtime 的现代化 C++ 目标检测项目，采用面向对象设计，实现了完整的 YOLOv5 推理流程。
 
 🔗 **项目地址**: [https://github.com/andaoai/YOLOv5-ONNXRuntime](https://github.com/andaoai/YOLOv5-ONNXRuntime)
 
@@ -24,12 +24,14 @@
 
 ## 🚀 项目特点
 
-- **🎯 YOLOv5 目标检测**：完整的 ONNX 模型推理实现
-- **🖼️ 图像处理**：基于 OpenCV 4.8.1 的图像预处理和后处理
-- **⚡ 高性能推理**：ONNX Runtime 1.18.1 优化推理引擎
-- **🏗️ 现代 C++17**：符合现代 C++ 标准的代码实现
+- **🎯 YOLOv5 目标检测**：完整的 ONNX 模型推理实现，支持 COCO 80 类目标检测
+- **🖼️ 图像处理**：基于 OpenCV 4.8.1 的智能图像预处理和后处理
+- **⚡ Float16 优化推理**：ONNX Runtime 1.18.1 + Float16 精度优化，内存占用减半
+- **🏗️ 面向对象设计**：采用抽象基类 `Algorithm` 和具体实现 `YOLOv5Detector`
+- **📊 详细性能统计**：分步时间统计、进度条可视化、性能分析
+- **🎨 智能结果可视化**：彩色输出、表格统计、检测框绘制
 - **📦 Conan 2.x**：自动化依赖管理，直接使用 Conan Center 官方包
-- **🔧 标准构建系统**：支持 Release/Debug 多配置构建
+- **🔧 混合构建支持**：Debug 项目代码 + Release 依赖库，调试性能两不误
 - **🐳 Dev Container 支持**：一键在 Ubuntu 容器内开发
 - **💻 VSCode 集成**：完整的 C++ 开发环境配置
 
@@ -80,7 +82,10 @@ YOLOv5-ONNXRuntime/
 ├── README.md                   # 项目说明文档
 ├── compile_commands.json       # VSCode 编译数据库（生成）
 ├── src/                        # 源代码目录
-│   └── main.cpp               # YOLOv5 推理主程序
+│   ├── Algorithm.h            # 算法抽象基类（模板设计）
+│   ├── yolov5.h              # YOLOv5 检测器类声明
+│   ├── yolov5.cpp            # YOLOv5 检测器类实现
+│   └── main.cpp              # YOLOv5 推理主程序（演示用法）
 ├── assets/                     # 资源文件
 │   ├── images/                # 图像文件
 │   │   ├── bus.jpg           # 测试图片
@@ -99,11 +104,12 @@ YOLOv5-ONNXRuntime/
 ## 🎯 核心功能
 
 ### YOLOv5 目标检测
-- **🖼️ 图像预处理**：自动缩放、填充、归一化（保持宽高比）
-- **🧠 ONNX 推理**：支持 Float16 优化推理，多线程加速
-- **🎯 目标检测**：检测 80 种 COCO 类别目标
-- **📊 后处理**：置信度过滤（0.5）、NMS 非极大值抑制（0.4）
-- **🎨 结果可视化**：绘制绿色检测框和标签，显示置信度百分比
+- **🖼️ 智能图像预处理**：保持宽高比的 letterbox 缩放、灰色填充、BGR→RGB 转换
+- **🧠 Float16 优化推理**：内存占用减半，支持 4 线程并行推理加速
+- **🎯 目标检测**：检测 80 种 COCO 类别目标，支持自定义置信度阈值
+- **📊 高效后处理**：向量化置信度过滤、基于 IoU 的 NMS 非极大值抑制
+- **🎨 智能结果可视化**：绿色检测框、类别标签、置信度百分比显示
+- **⏱️ 详细性能统计**：分步时间统计（预处理、推理、后处理）、进度条可视化
 
 ### 支持的目标类别
 支持 COCO 数据集的 80 种类别，包括：
@@ -253,20 +259,48 @@ YOLOv5-ONNXRuntime/
 
 ## 📊 运行结果
 
-程序运行后会输出检测结果：
+程序运行后会输出详细的检测结果和性能统计：
 
 ```
-YOLOv5 ONNX 推理测试
-图像: 810x1080
-推理完成
-检测到 4 个目标:
-  - person (置信度: 0.82) 位置: [219, 408, 130, 454]
-  - person (置信度: 0.80) 位置: [52, 401, 154, 493]
-  - person (置信度: 0.64) 位置: [680, 369, 129, 504]
-  - bus (置信度: 0.51) 位置: [55, 236, 754, 531]
-结果已保存到: ../assets/images/bus_result.jpg
-YOLOv5 推理测试完成！
+🚀 YOLOv5 ONNX 推理测试
+
+📷 图像尺寸: 810x1080
+YOLOv5 模型加载成功: /workspaces/YOLOv5-ONNXRuntime/assets/models/yolov5n.onnx
+
+⏱️  YOLOv5 分步执行时间统计
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔄 预处理时间: 28.9 ms
+🧠 模型推理时间: 96.9 ms
+⚙️  后处理时间: 0.3 ms
+⏰ 总处理时间: 126.1 ms
+
+📊 时间分布统计
+┌─────────────┬──────────┬─────────┬──────────────────────┐
+│ 阶段        │ 时间(ms) │ 占比(%) │ 进度条               │
+├─────────────┼──────────┼─────────┼──────────────────────┤
+│ 预处理      │     28.9 │   22.9  │ ====                 │
+│ 模型推理    │     96.9 │   76.8  │ ===============      │
+│ 后处理      │      0.3 │    0.2  │                      │
+└─────────────┴──────────┴─────────┴──────────────────────┘
+
+🎯 检测到 4 个目标:
+   1 person (置信度: 82.4%) 位置: [219, 408, 130, 454]
+   2 person (置信度: 80.4%) 位置: [52, 401, 154, 493]
+   3 person (置信度: 64.0%) 位置: [680, 369, 129, 504]
+   4 bus (置信度: 51.2%) 位置: [55, 236, 754, 531]
+
+🎨 绘制结果时间: 3.6 ms
+💾 结果已保存到: /workspaces/YOLOv5-ONNXRuntime/assets/images/bus_result.jpg
+
+✅ YOLOv5 推理测试完成！
 ```
+
+### 🎨 输出特性
+
+- **🌈 彩色终端输出**：使用 fmt 库实现彩色文本和表情符号
+- **📊 详细性能分析**：分步时间统计、百分比占比、可视化进度条
+- **📋 表格化展示**：美观的 Unicode 表格显示时间分布
+- **🎯 检测结果详情**：目标类别、置信度百分比、精确坐标信息
 
 检测结果图像会保存到 `assets/images/bus_result.jpg`，包含：
 - 🟢 **绿色边界框**：标识检测到的目标
@@ -308,6 +342,56 @@ cd build/Debug && cmake ../.. -DCMAKE_TOOLCHAIN_FILE=generators/conan_toolchain.
    const std::string image_path = "/workspaces/YOLOv5-ONNXRuntime/assets/images/your_image.jpg";
    ```
 4. 重新编译运行
+
+### 🔧 API 使用示例
+
+#### 基本使用方法
+
+```cpp
+#include "yolov5.h"
+
+int main() {
+    // 1. 创建检测器实例
+    YOLOv5Detector detector("path/to/model.onnx", 0.5f, 0.4f);
+
+    // 2. 加载图像
+    cv::Mat image = cv::imread("path/to/image.jpg");
+
+    // 3. 方法一：一键检测（推荐）
+    std::vector<Detection> detections = detector.detect(image);
+
+    // 4. 绘制结果
+    cv::Mat result = detector.draw_detections(image, detections);
+    cv::imwrite("result.jpg", result);
+
+    return 0;
+}
+```
+
+#### 分步执行方法
+
+```cpp
+// 方法二：分步执行（用于性能分析）
+cv::Mat preprocessed = detector.preprocess(image);
+std::vector<float> inference_output = detector.inference(preprocessed);
+std::vector<Detection> detections = detector.postprocess(inference_output, image);
+cv::Mat result = detector.draw_results(image, detections);
+```
+
+#### 配置参数调整
+
+```cpp
+// 动态调整检测参数
+detector.set_confidence_threshold(0.6f);  // 提高置信度阈值
+detector.set_nms_threshold(0.3f);         // 降低 NMS 阈值
+
+// 获取当前配置
+float conf_thresh = detector.get_confidence_threshold();
+float nms_thresh = detector.get_nms_threshold();
+
+// 获取类别名称
+std::string class_name = detector.get_class_name(0);  // "person"
+```
 
 ## 🔧 开发环境配置
 
@@ -447,115 +531,195 @@ gdb build/Debug/bin/main
 
 ### 主要文件说明
 
-- **`src/main.cpp`**：主程序文件，包含完整的 YOLOv5 推理流程
-- **`CMakeLists.txt`**：CMake 构建配置，支持 Debug/Release 多配置
+- **`src/Algorithm.h`**：算法抽象基类，使用模板支持不同结果类型
+- **`src/yolov5.h`**：YOLOv5 检测器类声明，继承 Algorithm 基类
+- **`src/yolov5.cpp`**：YOLOv5 检测器类实现，包含完整推理流程
+- **`src/main.cpp`**：主程序文件，演示 YOLOv5Detector 的使用方法
+- **`CMakeLists.txt`**：CMake 构建配置，支持混合构建和多配置
 - **`conanfile.py`**：Conan 依赖管理，自动下载 OpenCV 和 ONNX Runtime
 - **`assets/models/yolov5n.onnx`**：YOLOv5 Nano 模型（最轻量版本）
 - **`assets/images/bus.jpg`**：测试图像
 
+### 面向对象设计架构
+
+#### 1. 抽象基类 `Algorithm<ResultType>`
+```cpp
+template<typename ResultType>
+class Algorithm {
+public:
+    // 核心接口 - 分步执行
+    virtual bool load_model(const std::string& model_path) = 0;
+    virtual cv::Mat preprocess(const cv::Mat& input_image) = 0;
+    virtual std::vector<float> inference(const cv::Mat& preprocessed_image) = 0;
+    virtual std::vector<ResultType> postprocess(const std::vector<float>& inference_output,
+                                               const cv::Mat& original_image) = 0;
+
+    // 检测接口 - 完整的检测流程
+    virtual std::vector<ResultType> detect(const cv::Mat& image) = 0;
+    virtual cv::Mat draw_results(const cv::Mat& image, const std::vector<ResultType>& results) = 0;
+
+    // 配置和信息接口
+    virtual void set_confidence_threshold(float threshold) = 0;
+    virtual void set_nms_threshold(float threshold) = 0;
+    virtual std::string get_class_name(int class_id) const = 0;
+};
+```
+
+#### 2. 具体实现类 `YOLOv5Detector`
+```cpp
+class YOLOv5Detector : public Algorithm<Detection> {
+private:
+    std::unique_ptr<Ort::Env> env_;
+    std::unique_ptr<Ort::Session> session_;
+    std::unique_ptr<Ort::SessionOptions> session_options_;
+    static const std::vector<std::string> class_names_;  // COCO 80 类
+};
+```
+
 ### 关键技术实现
 
 1. **Float16 优化推理**：
-   - 使用 `Ort::Float16_t` 类型减少内存占用
-   - 支持硬件加速（如果可用）
+   - 使用 `Ort::Float16_t` 类型减少内存占用 50%
+   - 4 线程并行推理加速
    - 保持推理精度的同时提升性能
 
 2. **智能图像预处理**：
-   - 保持宽高比的 letterbox 缩放
-   - 自动计算填充偏移量
+   - 保持宽高比的 letterbox 缩放算法
+   - 自动计算填充偏移量和缩放比例
    - BGR→RGB 颜色空间转换
+   - HWC→CHW 维度转换
 
 3. **高效后处理**：
-   - 向量化的置信度过滤
-   - 基于 IoU 的 NMS 算法
-   - 坐标系自动转换
+   - 向量化的置信度过滤（> 0.5）
+   - 基于 IoU 的 NMS 算法（阈值 0.4）
+   - 坐标系自动反变换（640x640 → 原图尺寸）
 
 ## 🏗️ 技术架构
 
 ### 核心组件
 
-项目采用函数式设计，主要包含以下核心组件：
+项目采用面向对象设计，主要包含以下核心组件：
 
-<augment_code_snippet path="src/main.cpp" mode="EXCERPT">
+<augment_code_snippet path="src/yolov5.h" mode="EXCERPT">
 ````cpp
 // 检测结果结构
 struct Detection {
-    cv::Rect box;        // 边界框
-    float confidence;    // 置信度
-    int class_id;       // 类别ID
-};
+    cv::Rect box;           // 边界框
+    float confidence;       // 置信度
+    int class_id;          // 类别ID
 
-// COCO 数据集 80 种类别名称
-const std::vector<std::string> class_names = {
-    "person", "bicycle", "car", "motorcycle", "airplane", "bus", "train", "truck", "boat", "traffic light",
-    // ... 完整的 80 种类别
+    Detection() : confidence(0.0f), class_id(-1) {}
+    Detection(const cv::Rect& bbox, float conf, int cls_id)
+        : box(bbox), confidence(conf), class_id(cls_id) {}
 };
 ````
 </augment_code_snippet>
 
-**核心函数实现**：
-
-1. **图像预处理函数**：
-<augment_code_snippet path="src/main.cpp" mode="EXCERPT">
+<augment_code_snippet path="src/yolov5.h" mode="EXCERPT">
 ````cpp
-// 保持宽高比的缩放、填充、归一化和 BGR→RGB 转换
-cv::Mat preprocess_image(const cv::Mat& image, int input_width, int input_height);
+// YOLOv5 检测器类 - 继承Algorithm抽象类
+class YOLOv5Detector : public Algorithm<Detection> {
+public:
+    YOLOv5Detector(const std::string& model_path,
+                   float confidence_threshold = 0.5f,
+                   float nms_threshold = 0.4f);
+
+    // 实现Algorithm抽象接口
+    cv::Mat preprocess(const cv::Mat& input_image) override;
+    std::vector<float> inference(const cv::Mat& preprocessed_image) override;
+    std::vector<Detection> postprocess(const std::vector<float>& inference_output,
+                                     const cv::Mat& original_image) override;
+};
 ````
 </augment_code_snippet>
 
-2. **NMS 非极大值抑制**：
-<augment_code_snippet path="src/main.cpp" mode="EXCERPT">
+**核心方法实现**：
+
+1. **图像预处理方法**：
+<augment_code_snippet path="src/yolov5.cpp" mode="EXCERPT">
 ````cpp
-// IoU 计算和重叠检测框过滤
-std::vector<Detection> apply_nms(std::vector<Detection>& detections, float nms_threshold);
+cv::Mat YOLOv5Detector::preprocess_image(const cv::Mat& image, int input_width, int input_height) {
+    // 保持宽高比的 letterbox 缩放、填充、归一化和 BGR→RGB 转换
+}
 ````
 </augment_code_snippet>
 
-3. **主推理流程**（在 main() 函数中实现）：
-   - 加载图像和 ONNX 模型
-   - 创建 ONNX Runtime 会话（4线程优化）
-   - 图像预处理（640x640 输入）
-   - **Float16 推理**（内存和性能优化）
-   - 后处理和 NMS（置信度 0.5，NMS 0.4）
-   - 结果可视化和保存
+2. **Float16 推理方法**：
+<augment_code_snippet path="src/yolov5.cpp" mode="EXCERPT">
+````cpp
+std::vector<float> YOLOv5Detector::inference(const cv::Mat& preprocessed_image) {
+    // 转换为 Float16 格式，4线程并行推理
+    std::vector<Ort::Float16_t> input_tensor_values;
+    // ONNX Runtime 推理引擎
+}
+````
+</augment_code_snippet>
 
-### 数据流
+3. **NMS 后处理方法**：
+<augment_code_snippet path="src/yolov5.cpp" mode="EXCERPT">
+````cpp
+std::vector<Detection> YOLOv5Detector::apply_nms(std::vector<Detection>& detections, float nms_threshold) {
+    // IoU 计算和重叠检测框过滤
+}
+````
+</augment_code_snippet>
+
+### 数据流和处理流程
 
 ```
-输入图像 → 预处理 → Float16推理 → 后处理 → NMS → 可视化 → 输出结果
-    ↓         ↓         ↓         ↓      ↓      ↓
-  原始图像   缩放填充   特征提取   解析输出  去重  绘制边界框
-  810x1080  640x640   25200x85  检测框   过滤   保存图片
+输入图像 → YOLOv5Detector.preprocess() → YOLOv5Detector.inference() → YOLOv5Detector.postprocess() → 输出结果
+    ↓                    ↓                           ↓                           ↓                    ↓
+  原始图像              缩放填充                   Float16推理                  解析+NMS              可视化
+  810x1080             640x640                   25200x85                   检测框过滤             绘制边界框
 ```
 
-**详细处理流程**：
+**面向对象处理流程**：
 
-1. **图像加载**：OpenCV 读取 JPG 图像（BGR 格式）
-2. **预处理**：
+1. **对象创建和模型加载**：
+   ```cpp
+   YOLOv5Detector detector(model_path, 0.5f, 0.4f);  // 自动加载模型
+   ```
+
+2. **预处理阶段** (`detector.preprocess()`）：
    - 保持宽高比缩放到 640x640
    - 灰色填充（letterbox）
    - 归一化到 [0,1] 范围
    - BGR → RGB 颜色空间转换
    - HWC → CHW 维度转换
-3. **推理**：
-   - 转换为 Float16 格式（内存优化）
-   - ONNX Runtime 4线程推理
+
+3. **推理阶段** (`detector.inference()`）：
+   - 转换为 Float16 格式（内存优化 50%）
+   - ONNX Runtime 4线程并行推理
    - 输出：[1, 25200, 85] 张量
-4. **后处理**：
+
+4. **后处理阶段** (`detector.postprocess()`）：
    - 置信度过滤（> 0.5）
    - 坐标反变换（640x640 → 原图尺寸）
    - NMS 去重（IoU > 0.4）
-5. **可视化**：
+
+5. **可视化阶段** (`detector.draw_detections()`）：
    - 绘制绿色边界框
    - 添加类别标签和置信度
    - 保存结果图像
 
+6. **一键检测** (`detector.detect()`）：
+   - 封装完整流程：预处理 → 推理 → 后处理
+
 ### 依赖关系
 
 - **OpenCV 4.8.1**：图像 I/O、预处理、可视化、BGR↔RGB转换
-- **ONNX Runtime 1.18.1**：Float16 模型推理引擎，多线程优化
-- **C++17 STL**：数据结构和算法，向量操作
+- **ONNX Runtime 1.18.1**：Float16 模型推理引擎，4线程并行优化
+- **fmt 10.x**：现代 C++ 格式化库，彩色终端输出、表格显示
+- **C++17 STL**：智能指针、容器、算法，现代 C++ 特性
 - **Conan 2.x**：自动化依赖管理和构建
+
+### 设计模式和特性
+
+- **模板设计模式**：`Algorithm<ResultType>` 支持不同结果类型
+- **RAII 资源管理**：智能指针自动管理 ONNX Runtime 资源
+- **接口隔离原则**：清晰的抽象接口，易于扩展其他算法
+- **单一职责原则**：每个类和方法职责明确
+- **现代 C++ 特性**：智能指针、移动语义、范围 for 循环
 
 ## 📚 学习资源
 
@@ -584,5 +748,8 @@ MIT License
 ---
 
 **🎯 项目状态**：✅ 生产就绪
-**📊 测试覆盖率**：基础功能已验证
-**🔄 持续集成**：支持 Dev Container 环境
+**🏗️ 架构设计**：面向对象，模板化，易扩展
+**⚡ 性能优化**：Float16 推理，4线程并行，内存优化
+**📊 测试覆盖率**：基础功能已验证，性能统计完整
+**🔄 持续集成**：支持 Dev Container 环境，混合构建
+**🎨 用户体验**：彩色输出，详细统计，表格可视化
