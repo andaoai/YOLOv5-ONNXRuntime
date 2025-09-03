@@ -1,12 +1,14 @@
 #include <iostream>
 #include <string>
 #include <opencv2/opencv.hpp>
-#include <iomanip>
 #include <chrono>
+#include <fmt/format.h>
+#include <fmt/color.h>
 #include "yolov5.h"
 
 int main() {
-    std::cout << "YOLOv5 ONNX 推理测试" << std::endl;
+    fmt::print(fmt::fg(fmt::color::cyan) | fmt::emphasis::bold,
+               "🚀 YOLOv5 ONNX 推理测试\n\n");
 
     // 模型和图片路径
     const std::string model_path = "/workspaces/YOLOv5-ONNXRuntime/assets/models/yolov5n.onnx";
@@ -16,16 +18,19 @@ int main() {
         // 1. 加载图像
         cv::Mat image = cv::imread(image_path);
         if (image.empty()) {
-            std::cerr << "错误: 无法加载图像 " << image_path << std::endl;
+            fmt::print(fmt::fg(fmt::color::red), "❌ 错误: 无法加载图像 {}\n", image_path);
             return -1;
         }
-        std::cout << "图像: " << image.cols << "x" << image.rows << std::endl;
+        fmt::print("📷 图像尺寸: {}x{}\n", image.cols, image.rows);
 
         // 2. 创建 YOLOv5 检测器
         YOLOv5Detector detector(model_path, 0.5f, 0.4f);
 
         // 3. 使用分步执行并统计时间
-        std::cout << "\n=== YOLOv5 分步执行时间统计 ===" << std::endl;
+        fmt::print("\n");
+        fmt::print(fmt::fg(fmt::color::yellow) | fmt::emphasis::bold,
+                   "⏱️  YOLOv5 分步执行时间统计\n");
+        fmt::print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
 
         // 3.1 预处理阶段
         auto start_preprocess = std::chrono::high_resolution_clock::now();
@@ -34,11 +39,11 @@ int main() {
         auto preprocess_time = std::chrono::duration_cast<std::chrono::microseconds>(end_preprocess - start_preprocess);
 
         if (preprocessed.empty()) {
-            std::cerr << "错误: 预处理失败" << std::endl;
+            fmt::print(fmt::fg(fmt::color::red), "❌ 错误: 预处理失败\n");
             return -1;
         }
 
-        std::cout << "预处理时间: " << preprocess_time.count() / 1000.0 << " ms" << std::endl;
+        fmt::print("🔄 预处理时间: {:.1f} ms\n", preprocess_time.count() / 1000.0);
 
         // 3.2 模型推理阶段
         auto start_inference = std::chrono::high_resolution_clock::now();
@@ -47,11 +52,11 @@ int main() {
         auto inference_time = std::chrono::duration_cast<std::chrono::microseconds>(end_inference - start_inference);
 
         if (inference_output.empty()) {
-            std::cerr << "错误: 推理失败" << std::endl;
+            fmt::print(fmt::fg(fmt::color::red), "❌ 错误: 推理失败\n");
             return -1;
         }
 
-        std::cout << "模型推理时间: " << inference_time.count() / 1000.0 << " ms" << std::endl;
+        fmt::print("🧠 模型推理时间: {:.1f} ms\n", inference_time.count() / 1000.0);
 
         // 3.3 后处理阶段
         auto start_postprocess = std::chrono::high_resolution_clock::now();
@@ -59,28 +64,47 @@ int main() {
         auto end_postprocess = std::chrono::high_resolution_clock::now();
         auto postprocess_time = std::chrono::duration_cast<std::chrono::microseconds>(end_postprocess - start_postprocess);
 
-        std::cout << "后处理时间: " << postprocess_time.count() / 1000.0 << " ms" << std::endl;
+        fmt::print("⚙️  后处理时间: {:.1f} ms\n", postprocess_time.count() / 1000.0);
 
         // 3.4 总时间统计
         auto total_time = preprocess_time + inference_time + postprocess_time;
-        std::cout << "总处理时间: " << total_time.count() / 1000.0 << " ms" << std::endl;
+        fmt::print(fmt::fg(fmt::color::green) | fmt::emphasis::bold,
+                   "⏰ 总处理时间: {:.1f} ms\n", total_time.count() / 1000.0);
 
-        std::cout << "\n=== 时间分布 ===" << std::endl;
-        std::cout << "预处理占比: " << std::fixed << std::setprecision(1)
-                 << (double)preprocess_time.count() / total_time.count() * 100 << "%" << std::endl;
-        std::cout << "推理占比: " << std::fixed << std::setprecision(1)
-                 << (double)inference_time.count() / total_time.count() * 100 << "%" << std::endl;
-        std::cout << "后处理占比: " << std::fixed << std::setprecision(1)
-                 << (double)postprocess_time.count() / total_time.count() * 100 << "%" << std::endl;
+        // 时间分布表格
+        fmt::print("\n");
+        fmt::print(fmt::fg(fmt::color::magenta) | fmt::emphasis::bold, "📊 时间分布统计\n");
+        fmt::print("┌─────────────┬──────────┬─────────┬──────────────────────┐\n");
+        fmt::print("│ 阶段        │ 时间(ms) │ 占比(%) │ 进度条               │\n");
+        fmt::print("├─────────────┼──────────┼─────────┼──────────────────────┤\n");
 
-        std::cout << "\n检测到 " << detections.size() << " 个目标:" << std::endl;
+        double preprocess_pct = (double)preprocess_time.count() / total_time.count() * 100;
+        double inference_pct = (double)inference_time.count() / total_time.count() * 100;
+        double postprocess_pct = (double)postprocess_time.count() / total_time.count() * 100;
+
+        auto make_progress_bar = [](double pct) -> std::string {
+            int filled = static_cast<int>(pct / 5);  // 每5%一个字符，总共20个字符
+            return std::string(filled, '=') + std::string(20 - filled, ' ');
+        };
+
+        fmt::print("│ 预处理      │ {:8.1f} │ {:6.1f}  │ {} │\n",
+                   preprocess_time.count() / 1000.0, preprocess_pct, make_progress_bar(preprocess_pct));
+        fmt::print("│ 模型推理    │ {:8.1f} │ {:6.1f}  │ {} │\n",
+                   inference_time.count() / 1000.0, inference_pct, make_progress_bar(inference_pct));
+        fmt::print("│ 后处理      │ {:8.1f} │ {:6.1f}  │ {} │\n",
+                   postprocess_time.count() / 1000.0, postprocess_pct, make_progress_bar(postprocess_pct));
+        fmt::print("└─────────────┴──────────┴─────────┴──────────────────────┘\n");
+
+        fmt::print("\n🎯 检测到 {} 个目标:\n", detections.size());
 
         // 4. 输出检测结果
-        for (const auto& det : detections) {
-            std::cout << "  - " << detector.get_class_name(det.class_id)
-                     << " (置信度: " << std::fixed << std::setprecision(2) << det.confidence << ")"
-                     << " 位置: [" << det.box.x << ", " << det.box.y << ", "
-                     << det.box.width << ", " << det.box.height << "]" << std::endl;
+        for (size_t i = 0; i < detections.size(); ++i) {
+            const auto& det = detections[i];
+            fmt::print("  {} {} (置信度: {:.1f}%) 位置: [{}, {}, {}, {}]\n",
+                       i + 1 < 10 ? fmt::format(" {}", i + 1) : fmt::format("{}", i + 1),
+                       detector.get_class_name(det.class_id),
+                       det.confidence * 100,
+                       det.box.x, det.box.y, det.box.width, det.box.height);
         }
 
         // 5. 绘制结果并保存
@@ -89,18 +113,20 @@ int main() {
         auto end_draw = std::chrono::high_resolution_clock::now();
         auto draw_time = std::chrono::duration_cast<std::chrono::microseconds>(end_draw - start_draw);
 
-        std::cout << "\n绘制结果时间: " << draw_time.count() / 1000.0 << " ms" << std::endl;
+        fmt::print("\n🎨 绘制结果时间: {:.1f} ms\n", draw_time.count() / 1000.0);
 
         // 保存结果
         std::string output_path = "/workspaces/YOLOv5-ONNXRuntime/assets/images/bus_result.jpg";
         cv::imwrite(output_path, result_image);
-        std::cout << "结果已保存到: " << output_path << std::endl;
+        fmt::print(fmt::fg(fmt::color::green), "💾 结果已保存到: {}\n", output_path);
 
     } catch (const std::exception& e) {
-        std::cerr << "错误: " << e.what() << std::endl;
+        fmt::print(fmt::fg(fmt::color::red) | fmt::emphasis::bold,
+                   "💥 错误: {}\n", e.what());
         return -1;
     }
 
-    std::cout << "YOLOv5 推理测试完成！" << std::endl;
+    fmt::print(fmt::fg(fmt::color::green) | fmt::emphasis::bold,
+               "\n✅ YOLOv5 推理测试完成！\n");
     return 0;
 }

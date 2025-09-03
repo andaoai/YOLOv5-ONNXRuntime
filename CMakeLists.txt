@@ -33,6 +33,7 @@ endif()
 # 查找 Conan 管理的包
 find_package(opencv REQUIRED)
 find_package(onnxruntime REQUIRED)
+find_package(fmt REQUIRED)
 
 message(STATUS "Using Conan-managed OpenCV and ONNX Runtime")
 
@@ -57,6 +58,7 @@ endif()
 target_link_libraries(main
     opencv::opencv
     onnxruntime::onnxruntime
+    fmt::fmt
 )
 
 # 包含头文件目录 (当前项目不需要额外的头文件目录)

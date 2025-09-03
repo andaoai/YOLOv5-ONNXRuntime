@@ -16,6 +16,8 @@ class InferenceProjectConan(ConanFile):
         self.requires("opencv/4.8.1")
         # 使用 Conan Center 官方 ONNX Runtime 包
         self.requires("onnxruntime/1.18.1")
+        # 使用 fmt 库进行格式化输出
+        self.requires("fmt/10.1.1")
 
     def configure(self):
         """配置选项"""
