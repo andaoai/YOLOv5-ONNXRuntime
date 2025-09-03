@@ -34,8 +34,8 @@ _deps
 
 # Visual Studio Code (allow project configuration)
 # .vscode/
-.vscode/launch.json
-.vscode/tasks.json
+# .vscode/launch.json
+# .vscode/tasks.json
 .vscode/*.log
 
 # Temporary files

@@ -1,0 +1,83 @@
+{
+    "tasks": [
+        {
+            "label": "configure-debug",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "-S",
+                ".",
+                "-B",
+                "build/Debug",
+                "-DCMAKE_TOOLCHAIN_FILE=build/Release/generators/conan_toolchain.cmake",
+                "-DCMAKE_BUILD_TYPE=Debug",
+                "-DCMAKE_MAP_IMPORTED_CONFIG_DEBUG=Release"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ]
+        },
+        {
+            "label": "build-debug",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "build/Debug",
+                "--config",
+                "Debug",
+                "-j$(nproc)"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "dependsOn": "configure-debug"
+        },
+        {
+            "label": "build-release",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "build/Release",
+                "--config",
+                "Release",
+                "-j$(nproc)"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ]
+        }
+    ],
+    "version": "2.0.0"
+}
